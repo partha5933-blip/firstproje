@@ -1,24 +1,52 @@
 import { isMongoConfigured, connectDB } from "@/lib/db";
 import Lead from "@/models/Lead";
 import Booking from "@/models/Booking";
-import Task from "@/models/Task";
 import EmailLog from "@/models/EmailLog";
 import { dashboardSeries, sampleLeads } from "@/data/sample-content";
 import type { CrmLead, LeadStatus } from "@/types";
 
-function toCrmLead(lead: any): CrmLead {
+type CrmLeadDocument = {
+  _id?: string | { toString(): string };
+  name?: string;
+  email?: string;
+  phone?: string;
+  serviceInterested?: string;
+  budget?: string;
+  eventDate?: Date | string;
+  location?: string;
+  status?: LeadStatus | string;
+  assignedTo?: string;
+  createdAt?: Date | string;
+  value?: number;
+  leadSource?: string;
+};
+
+type EmailLogDocument = {
+  subject?: string;
+  status?: string;
+};
+
+function toCrmLead(lead: CrmLeadDocument): CrmLead {
+  const createdAt = lead.createdAt;
+  const createdAtValue =
+    createdAt instanceof Date
+      ? createdAt.toISOString()
+      : typeof createdAt === "string"
+        ? createdAt
+        : new Date().toISOString();
+
   return {
-    id: String(lead._id),
-    name: lead.name,
-    email: lead.email,
+    id: String(lead._id ?? ""),
+    name: lead.name ?? "",
+    email: lead.email ?? "",
     phone: lead.phone,
     serviceInterested: lead.serviceInterested,
     budget: lead.budget,
-    eventDate: lead.eventDate,
+    eventDate: typeof lead.eventDate === "string" ? lead.eventDate : lead.eventDate?.toISOString(),
     location: lead.location,
-    status: lead.status as LeadStatus,
+    status: (lead.status as LeadStatus) ?? "New",
     assignedTo: lead.assignedTo,
-    createdAt: lead.createdAt?.toISOString?.() || new Date().toISOString(),
+    createdAt: createdAtValue,
     value: lead.value,
     leadSource: lead.leadSource
   };
@@ -59,7 +87,7 @@ export async function getCrmSnapshot() {
       Lead.find({ status: "Won" }).lean()
     ]);
 
-  const revenue = wonLeads.reduce((sum: number, lead: any) => sum + (lead.value || 0), 0);
+  const revenue = wonLeads.reduce((sum: number, lead: CrmLeadDocument) => sum + (lead.value || 0), 0);
 
   return {
     leads: recentLeads.map(toCrmLead),
@@ -72,8 +100,8 @@ export async function getCrmSnapshot() {
     },
     series: dashboardSeries,
     recentActivities: [
-      ...recentLeads.slice(0, 2).map((lead: any) => `${lead.name} entered the pipeline`),
-      ...emailLogs.map((email: any) => `Email "${email.subject}" ${email.status}`)
+      ...recentLeads.slice(0, 2).map((lead: CrmLeadDocument) => `${lead.name} entered the pipeline`),
+      ...emailLogs.map((email: EmailLogDocument) => `Email "${email.subject}" ${email.status}`)
     ]
   };
 }
