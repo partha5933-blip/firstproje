@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -11,12 +12,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
             <p className="text-sm font-medium text-white">Studio operations</p>
             <p className="text-xs text-muted">Leads, content, email, appointments, consent, and analytics.</p>
           </div>
-          <a
+          <Link
             href="/"
             className="rounded-md border border-white/15 px-3 py-2 text-sm text-muted transition hover:border-gold/70 hover:text-white"
           >
             View Site
-          </a>
+          </Link>
         </header>
         <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>

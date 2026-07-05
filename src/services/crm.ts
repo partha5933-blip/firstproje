@@ -87,10 +87,10 @@ export async function getCrmSnapshot() {
       Lead.find({ status: "Won" }).lean()
     ]);
 
-  const revenue = wonLeads.reduce((sum: number, lead: CrmLeadDocument) => sum + (lead.value || 0), 0);
+  const revenue: number = (wonLeads as CrmLeadDocument[]).reduce((sum, lead) => sum + (lead.value || 0), 0);
 
   return {
-    leads: recentLeads.map(toCrmLead),
+    leads: (recentLeads as CrmLeadDocument[]).map(toCrmLead),
     metrics: {
       todayLeads,
       totalLeads,
@@ -100,8 +100,8 @@ export async function getCrmSnapshot() {
     },
     series: dashboardSeries,
     recentActivities: [
-      ...recentLeads.slice(0, 2).map((lead: CrmLeadDocument) => `${lead.name} entered the pipeline`),
-      ...emailLogs.map((email: EmailLogDocument) => `Email "${email.subject}" ${email.status}`)
+      ...(recentLeads as CrmLeadDocument[]).slice(0, 2).map((lead) => `${lead.name} entered the pipeline`),
+      ...(emailLogs as EmailLogDocument[]).map((email) => `Email "${email.subject}" ${email.status}`)
     ]
   };
 }
@@ -112,6 +112,6 @@ export async function getLeadById(id: string) {
   }
 
   await connectDB();
-  const lead = await Lead.findById(id).lean();
+  const lead = await Lead.findById(id).lean() as CrmLeadDocument | null;
   return lead ? toCrmLead(lead) : null;
 }

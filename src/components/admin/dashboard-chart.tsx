@@ -14,7 +14,19 @@ type DashboardChartProps = {
   data: { month: string; leads: number; revenue: number }[];
 };
 
-function ChartTooltip({ active, payload, label }: any) {
+type TooltipPayloadItem = {
+  dataKey: string;
+  name: string;
+  value: number;
+};
+
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+};
+
+function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) {
     return null;
   }
@@ -22,7 +34,7 @@ function ChartTooltip({ active, payload, label }: any) {
   return (
     <div className="rounded-lg border border-white/15 bg-surface p-3 text-sm shadow-soft">
       <p className="mb-2 font-medium text-white">{label}</p>
-      {payload.map((item: any) => (
+      {payload.map((item: TooltipPayloadItem) => (
         <p key={item.dataKey} className="text-muted">
           <span className="text-gold">{item.name}</span>: {item.value}
         </p>

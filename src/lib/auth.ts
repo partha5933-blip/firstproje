@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({
           email: credentials.email.toLowerCase(),
           active: true
-        }).lean();
+        }).lean() as { _id: unknown; passwordHash: string; email: string; name: string; role: string } | null;
 
         if (!user?.passwordHash) {
           return null;
@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           id: String(user._id),
           email: user.email,
           name: user.name,
-          role: user.role
+          role: (user.role as "admin" | "editor" | "viewer") || "viewer"
         };
       }
     })

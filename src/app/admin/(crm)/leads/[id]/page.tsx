@@ -75,7 +75,7 @@ export default async function LeadDetailPage({ params }: LeadDetailProps) {
             <section key={String(title)} className="rounded-lg border border-white/15 bg-white/[0.04] p-5">
               <div className="flex items-center gap-3">
                 <IconComponent className="h-5 w-5 text-gold" aria-hidden="true" />
-                <h2 className="font-semibold text-white">{title}</h2>
+                <h2 className="font-semibold text-white">{String(title)}</h2>
               </div>
               <p className="mt-3 text-sm leading-6 text-muted">{String(detail)}</p>
             </section>
